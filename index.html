@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Service to find ">
+    <meta name="keywords"
+      content="Software Engineering Excellence: MVP for a geo-distance, weighted ranking algorithm">
+    <meta name="author" content="Kak-nibud">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find GeO</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body class="body">
+    <page class="page">
+      <header class="header">
+        <h2 class="card__title">Weighted Ranking Algorithm</h2>
+      </header>
+      <main class="main">
+        <section class="form" id="request">
+          <input class="form__input" type="text" id="query"
+            placeholder="Postal Code">
+          <button class="form__submit-button" onclick="sendQuery()">Find
+            Craftsmen by postalcode</button>
+        </section>
+
+        <section class="form" id="update">
+          <input class="form__input" type="text" id="id" placeholder="ID">
+          <input class="form__input" type="text" id="maxDrivingDistance"
+            placeholder="Max driving distance">
+          <input class="form__input" type="text" id="profilePictureScore"
+            placeholder="Profile picture score">
+          <input class="form__input" type="text" id="profileDescriptionScore"
+            placeholder="Profile description score">
+          <button class="form__submit-button" onclick="updateRating()">Update
+            Craftsmen Rating</button>
+        </section>
+
+        <button class="form__submit-button form__submit-button_white"
+          hidden="hidden" id="Main" onclick="goBack()">Main</button>
+        <button class="form__submit-button form__submit-button_white"
+          hidden="hidden" id="More" onclick="moreCraftsmen()">More</button>
+      </main>
+      <footer class="footer">
+        <p class="footer__copyright">&copy; 2023 Kak-nibud, TUMhuck</p>
+      </footer>
+    </page>
+
+    <template>
+      <div id="card">
+        <li class="card__list">
+          <article class="card">
+            <img class="card__image" alt="#" src>
+            <div class="card__description">
+              <h2 class="card__title"></h2>
+              <p class="card__raiting">Rank: </p>
+            </div>
+          </article>
+        </li>
+      </div>
+    </template>
+
+    <script>
+
+    let cur_page = 0
+
+    function hideElement(id) {
+      let element = document.getElementById(id);
+      let hidden = element.getAttribute("hidden");
+
+      if (hidden == null) {
+         element.setAttribute("hidden", "hidden");
+      }
+    }
+
+    function displayElement(id) {
+      let element = document.getElementById(id);
+      let hidden = element.getAttribute("hidden");
+
+      if (hidden) {
+        element.removeAttribute("hidden")
+      }
+    }
+
+    function goBack() {
+      hideElement('Main')
+      hideElement('More')
+      displayElement('update')
+      displayElement('request')
+      document.getElementById('id').value=''
+      document.getElementById('query').value=''
+      document.getElementById('maxDrivingDistance').value=''
+      document.getElementById('profilePictureScore').value=''
+      document.getElementById('profileDescriptionScore').value=''
+
+      let elms = document.querySelectorAll("[id='card']");
+      for(let i = 0; i < elms.length; i++)
+        elms[i].remove()
+    }
+
+    function moreCraftsmen() {
+      cur_page += 1;
+      sendQuery()
+    }
+
+    function sendQuery() {
+      const queryValue = document.getElementById('query').value;
+      hideElement('update')
+      displayElement('Main')
+      displayElement('More')
+      fetch(`/craftsmen?postalcode=${encodeURIComponent(queryValue)}&page=${cur_page}`)
+        .then(response => response.json())
+        .then(data => {
+          updateTable(data.craftsmen);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function updateTable(data) {
+      data.forEach(item => {
+        let temp = document.getElementsByTagName("template")[0];
+
+        let header = temp.content.querySelector("h2");
+        header.textContent = item.name;
+        let rank = temp.content.querySelector("p");
+        rank.textContent = "Rank: " + item.rankingScore;
+
+        let clone = temp.content.cloneNode(true);
+
+        let Main = document.getElementsByTagName("main")[0];
+        let MainButton = document.getElementById("Main");
+        Main.insertBefore(clone, MainButton);
+        //document.body.appendChild(clone);
+      })
+    }
+
+    function updateRating() {
+      const idValue = document.getElementById('id').value;
+      const maxDrivingDistanceValue = document.getElementById('maxDrivingDistance').value;
+      const profilePictureScoreValue = document.getElementById('profilePictureScore').value;
+      const profileDescriptionScoreValue = document.getElementById('profileDescriptionScore').value;
+
+      let body = {};
+      if (maxDrivingDistanceValue != "") body.maxDrivingDistance = maxDrivingDistanceValue;
+      if (profilePictureScoreValue != "") body.profilePictureScore = profilePictureScoreValue;
+      if (profileDescriptionScoreValue != "") body.profileDescriptionScore = profileDescriptionScoreValue;
+
+      fetch(`/craftman/${encodeURIComponent(idValue)}`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          updateTable([data.updated]);
+        })
+        .catch(err => {
+          console.error('Error:', err);
+        });
+      displayElement('Main')
+      hideElement('request')
+    }
+  </script>
+  </body>
+
+</html>

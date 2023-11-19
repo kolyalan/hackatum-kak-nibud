@@ -1,0 +1,29 @@
+@import url('./vendor/normalize.css');
+@import url('./vendor/fonts/fonts.css');
+
+/* Body */
+@import url('./styles/body.css');
+@import url('./styles/page/page.css');
+
+/* Header */
+@import url('./styles/header/header.css');
+@import url('./styles/header/__logo/header__logo.css');
+
+
+/* Card */
+@import url('./styles/card/card.css');
+@import url('./styles/card/__image/card__image.css');
+@import url('./styles/card/__description/card__description.css');
+@import url('./styles/card/__title/card__title.css');
+@import url('./styles/card/__raiting/card__raiting.css');
+@import url('./styles/card/__list/card__list.css');
+
+/* Form */
+@import url('./styles/form/form.css');
+@import url('./styles/form/__input/form__input.css');
+@import url('./styles/form/__submit-button/form__submit-button.css');
+@import url('./styles/form/__submit-button/_white/form__submit-button_white.css');
+
+/* Footer */
+@import url('./styles/footer/footer.css');
+@import url('./styles/footer/__copyright/footer__copyright.css');
